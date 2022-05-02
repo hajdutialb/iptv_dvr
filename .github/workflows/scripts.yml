@@ -4,6 +4,9 @@ on:
     branches:
       - main
   
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+  
 jobs:
   start:
     runs-on: ubuntu-latest
