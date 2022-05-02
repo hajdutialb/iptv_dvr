@@ -16,12 +16,15 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
         
+      - name: environment variables
+        export $(grep -v '^#' .env | xargs -0)
+        
       - name: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         
-      #- name: test
-      #  run: echo "TEST IS $TEST" ; TEST1=$(cat .env); echo "TEST1 IS $TEST1"
+      - name: test
+        run: echo "URL IS $URL" ; echo "DUR IS $DUR"
         
       - name: SSH
         uses: mxschmitt/action-tmate@v3.11
