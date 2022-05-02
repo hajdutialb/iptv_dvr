@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
         
       - name: environment variables
-        run: export $(grep -v '^#' .env | xargs -0)
+        run: echo $(grep -v '^#' .env | xargs -0) >> $GITHUB_ENV
         
       - name: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v1
