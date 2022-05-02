@@ -2,7 +2,7 @@ name: IPTV DVR
 on:
   push:
     branches:
-      - master
+      - main
   
 jobs:
   start:
