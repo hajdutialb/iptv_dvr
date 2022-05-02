@@ -13,6 +13,9 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     
     steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        
       - name: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
