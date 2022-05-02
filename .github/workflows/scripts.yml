@@ -14,8 +14,8 @@ jobs:
         uses: FedericoCarboni/setup-ffmpeg@v1
         id: setup-ffmpeg
         
-      - name: test
-        run: echo "TEST IS $TEST" && TEST1=$(cat .env) && echo "TEST1 IS $TEST1"
+      #- name: test
+      #  run: echo "TEST IS $TEST" ; TEST1=$(cat .env); echo "TEST1 IS $TEST1"
         
       - name: SSH
         uses: mxschmitt/action-tmate@v3.11
