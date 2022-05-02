@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v2
         
       - name: environment variables
-        export $(grep -v '^#' .env | xargs -0)
+        run: export $(grep -v '^#' .env | xargs -0)
         
       - name: ffmpeg
         uses: FedericoCarboni/setup-ffmpeg@v1
