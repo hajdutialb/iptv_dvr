@@ -1,0 +1,18 @@
+name: IPTV DVR
+on:
+  push:
+    branches:
+      - master
+  
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    
+    steps:
+      - name: ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+        
+      - name: SSH
+        uses: mxschmitt/action-tmate@v3.11
