@@ -1,0 +1,219 @@
+name: IPTV DVR
+on:
+  push:
+    branches:
+      - main
+  
+env:
+  GITHUB_TOKEN: ${{ github.token }}
+  API_ID: ${{ secrets.API_ID }}
+  API_HASH: ${{ secrets.API_HASH }}
+  PHONE: ${{ secrets.PHONE }}
+  SESSION: ${{ secrets.SESSION }}
+  TIBO_USER: ${{ secrets.TIBO_USER }}
+  TIBO_PASS: ${{ secrets.TIBO_PASS }}
+  TIBO_BOXID: ${{ secrets.TIBO_BOXID }}
+  NIMI_AUTH: ${{ secrets.NIMI_AUTH }}
+  
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        
+      - name: environment variables
+        run: grep -v '^#' .env | xargs -0 >> $GITHUB_ENV
+        
+      - name: session
+        run: echo "$SESSION" | base64 -d > iptv_dvr_bot.session
+
+      - name: telethon
+        run: pip install telethon
+
+      - name: ffmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v1
+        id: setup-ffmpeg
+
+      #- name: SSH
+      #  uses: mxschmitt/action-tmate@v3.11
+        
+      - name: record
+        id: record
+        continue-on-error: true
+        run: |
+          if [[ "$URL" == *"1" ]]; then
+                MAC='00:1A:79:32:3B:6A'
+                PROXY='http://46.99.178.155:1339'
+                
+                token=$(curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H 'Authorization: Bearer' -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=stb&action=handshake&JsHttpRequest=1-xml' 2> /dev/null)
+                token=$(echo $token | jq -r .js.token)
+
+                resp=$(curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=stb&hd=1&not_valid_token=0&video_out=hdmi&action=get_profile&num_banks=2&auth_second_step=1&JsHttpRequest=1-xml&metrics=%7B%22mac%22%3A%2200%3A1A%3A79%3A32%3A3B%3A6A%22,%22model%22%3A%22MAG250%22,%22type%22%3A%22STB%22%7D&sn=02D99258EA796' 2> /dev/null)
+                
+                if [[ "$URL" == "bangbang1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53836_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                elif [[ "$URL" == "cufo1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53835_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                elif [[ "$URL" == "junior1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53829_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                elif [[ "$URL" == "familyhd1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53898_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                elif [[ "$URL" == "goldhd1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53895_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                elif [[ "$URL" == "hitshd1" ]]; then
+                    URL=$((curl -x "$PROXY" -H 'Host: ottbest.net' -H 'Accept: */*' -H "Cookie: mac=$MAC" -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0' -H "Authorization: Bearer $token" -H 'Accept-Language: en-us' --compressed 'http://ottbest.net/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F53897_' | jq -r .js.cmd | cut -d\   -f2) 2> /dev/null)
+                fi
+          else
+              if [[ "$URL" == "bangbang" ]]; then
+                  URL=$(sh bangbang.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="http://cleverside.us:8484/Pop/Player/222"
+                      UG=""
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "cufo" ]]; then
+                  URL=$(sh cufo.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="http://cleverside.us:8484/Pop/Player/223"
+                      UG=""
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "junior" ]]; then
+                  URL=$(sh junior.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="http://cleverside.us:8484/Pop/Player/221"
+                      UG=""
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "hitshd" ]]; then
+                  URL=$(sh hits.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="https://app.shikoshqip.xyz:2083/shikoshqip.xyz/5dgqzWNVPLSN/64"
+                      UG="useri"
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "goldhd" ]]; then
+                  URL=$(sh gold.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="http://cleverside.us:8484/Pop/Player/47"
+                      UG=""
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "familyhd" ]]; then
+                  URL=$(sh family.sh)
+                  PROXY='http://46.99.178.155:1339'
+                  if [ $? -ne 0 ] || [ "$URL" == "" ]; then
+                      URL="http://cleverside.us:8484/Pop/Player/62"
+                      UG=""
+                      unset PROXY
+                  fi
+              elif [[ "$URL" == "tringtring" ]]; then
+                  TIBO_LOGIN=$(php Encryption.php)
+                  c_auth=$(curl -H 'Host: apps.tibo.tv' -H 'accept: */*' -H 'content-type: application/json' -H 'user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X; U; en-us) AppleWebKit/7535 (KHTML, like Gecko) Version/13.5 Safari/7535' -H 'accept-language: en-US;q=1.0, it-IT;q=0.9, sq-US;q=0.8' --data-binary '{"app_name":"com.tibo.webtv","screensize":"736x414","device_timezone":"2","auth":"'$TIBO_LOGIN'","appid":"3","os":"13.5","firmwareversion":"","appversion":"1.51077","api_version":"","macaddress":"","language":"eng","hdmi":"false","ntype":"1","devicebrand":"iPhone"}' --compressed 'https://apps.tibo.tv/apiv2/token/verizon/aa')
+
+                  c_auth=$(echo $c_auth | jq -r .extra_data)
+                  URL="http://wpc.9c446.rhocdn.net/809C446/srv695/yWbXvr2S/tringtring/playlist.m3u8$c_auth"
+              elif [[ "$URL" == "tringkids" ]]; then
+                  TIBO_LOGIN=$(php Encryption.php)
+                  c_auth=$(curl -H 'Host: apps.tibo.tv' -H 'accept: */*' -H 'content-type: application/json' -H 'user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X; U; en-us) AppleWebKit/7535 (KHTML, like Gecko) Version/13.5 Safari/7535' -H 'accept-language: en-US;q=1.0, it-IT;q=0.9, sq-US;q=0.8' --data-binary '{"app_name":"com.tibo.webtv","screensize":"736x414","device_timezone":"2","auth":"'$TIBO_LOGIN'","appid":"3","os":"13.5","firmwareversion":"","appversion":"1.51077","api_version":"","macaddress":"","language":"eng","hdmi":"false","ntype":"1","devicebrand":"iPhone"}' --compressed 'https://apps.tibo.tv/apiv2/token/verizon/aa')
+
+                  c_auth=$(echo $c_auth | jq -r .extra_data)
+                  URL="http://wpc.9c446.rhocdn.net/809C446/srv695/yWbXvr2S/tringkids/playlist.m3u8$c_auth"
+              elif [[ "$URL" == "tringplanet" ]]; then
+                  TIBO_LOGIN=$(php Encryption.php)
+                  c_auth=$(curl -H 'Host: apps.tibo.tv' -H 'accept: */*' -H 'content-type: application/json' -H 'user-agent: Mozilla/5.0 (iPhone; CPU iPhone OS 13_5 like Mac OS X; U; en-us) AppleWebKit/7535 (KHTML, like Gecko) Version/13.5 Safari/7535' -H 'accept-language: en-US;q=1.0, it-IT;q=0.9, sq-US;q=0.8' --data-binary '{"app_name":"com.tibo.webtv","screensize":"736x414","device_timezone":"2","auth":"'$TIBO_LOGIN'","appid":"3","os":"13.5","firmwareversion":"","appversion":"1.51077","api_version":"","macaddress":"","language":"eng","hdmi":"false","ntype":"1","devicebrand":"iPhone"}' --compressed 'https://apps.tibo.tv/apiv2/token/verizon/aa')
+
+                  c_auth=$(echo $c_auth | jq -r .extra_data)
+                  URL="http://wpc.9c446.rhocdn.net/809C446/srv695/yWbXvr2S/tringplanet/playlist.m3u8$c_auth"
+              fi
+              
+              if [[ $UG == "" ]]; then
+                  error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                  if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                      error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                      if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                          UG="PopPlayer"
+                          error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                          if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                              UG="Poppi"
+                              error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                              if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                                  UG="PopiSot"
+                                  error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                                  if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                                      UG="PoppiSot"
+                                      error=$(curl -s -I -X POST -H "User-Agent: $UG" "$URL")
+                                      if [[ ! "$error" == *"200"* ]] && [[ ! "$error" == *"Location"* ]]; then
+                                          UG="useri"
+                                          if [[ "$URL" == "http://cleverside.us:8484/Pop/Player/14" ]]; then
+                                              URL="https://app.shikoshqip.xyz:2083/shikoshqip.xyz/5dgqzWNVPLSN/14"
+                                          elif [[ "$URL" == "http://cleverside.us:8484/Pop/Player/222" ]]; then
+                                              URL="https://app.shikoshqip.xyz:2083/shikoshqip.xyz/5dgqzWNVPLSN/147"
+                                          elif [[ "$URL" == "http://cleverside.us:8484/Pop/Player/223" ]]; then
+                                              URL="https://app.shikoshqip.xyz:2083/shikoshqip.xyz/5dgqzWNVPLSN/148"
+                                          elif [[ "$URL" == "http://cleverside.us:8484/Pop/Player/221" ]]; then
+                                              URL="https://app.shikoshqip.xyz:2083/shikoshqip.xyz/5dgqzWNVPLSN/149"
+                                          fi
+                                      fi
+                                  fi
+                              fi
+                          fi
+                      fi
+                  fi
+              fi
+          fi
+          
+          if [ -z "${UG+x}" ]; then
+              if [ -z "${PROXY+x}" ]; then
+                  ffmpeg -i "$URL" -c copy -to "$DUR" video.ts
+              else
+                  http_proxy="$PROXY" ffmpeg -i "$URL" -c copy -to "$DUR" video.ts
+              fi
+          else
+              if [ -z "${PROXY+x}" ]; then
+                  ffmpeg -headers "User-Agent: $UG" -i "$URL" -c copy -to "$DUR" video.ts
+              else
+                  http_proxy="$PROXY" ffmpeg -headers "User-Agent: $UG" -i "$URL" -c copy -to "$DUR" video.ts
+              fi
+          fi
+          
+          # link=$(curl -H 'Host: alfatv.life:8080' -H 'Accept: */*' -H 'Cookie: mac=00:1A:79:6F:10:B1; stb_lang=en_US; timezone=Europe/Tirane; __cfduid=f669df5a7312b1ea6356a9ec8cbe100b;' -H 'User-Agent: StalkerTV-Free/906.2 CFNetwork/1126 Darwin/19.5.0'  -H 'Accept-Language: en-us' --compressed 'http://alfatv.life:8080/server/load.php?type=itv&action=create_link&cmd=ffmpeg%20http%3A%2F%2Flocalhost%2Fch%2F3106_') && token=$(echo $link | awk -F 'token=|"}' '{print $2}') && http_proxy="http://46.99.178.155:1339" ffmpeg -i "http://alfatv.life:8080/nx4sQBjG64/Fr8Vgw0A3U/3106?play_token=$token" -c copy -to $DUR video.ts
+          
+          if [ -f video.ts ] && [ -s video.ts ]; then
+              ffmpeg -i video.ts -c copy video.mp4
+              
+              if [ $? -ne 0 ]; then
+                  VIDEO="video.ts"
+              else
+                  VIDEO="video.mp4"
+              fi
+              
+              #rm video.ts
+              
+              #echo "HASH IS" $(md5sum video.mp4)
+              
+              FILEID=$(python3 attach.py $VIDEO $VIDEO)
+              if [ $? -ne 0 ]; then
+                  echo "Failed to send file"
+              fi
+              curl "https://api.telegram.org/bot5231104088:AAFQSoZCApd6jdmEw-yJ-rULjLuNp-bVOGo/sendVideo?video=$FILEID&chat_id=$CHATID"
+          fi
+
+      - name: Error handling
+        if: steps.record.outcome != 'success'
+        run: curl "https://api.telegram.org/bot5231104088:AAFQSoZCApd6jdmEw-yJ-rULjLuNp-bVOGo/sendMessage?text=Regjistrimi%20dështoi&chat_id=$CHATID"
+        
+      #- name: SSH
+      #  uses: mxschmitt/action-tmate@v3.11
+      
+      #- name: test
+      #  run: echo "URL IS $URL" ; echo "DUR IS $DUR"
+    
